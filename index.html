@@ -1,170 +1,327 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Intelligent Convective Regulator - Smart Fan Physics Project</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-  <header>
-    <h1>Intelligent Convective Regulator</h1>
-    <nav>
-      <a href="#overview">Overview</a>
-      <a href="#implementation">Implementation</a>
-      <a href="#results">Results</a>
-      <a href="#enhancements">Future Work</a>
-      <a href="#author">Author</a>
-      <a href="#download">Downloads</a>
-    </nav>
-  </header>
-
-  <main>
-    <!-- Overview -->
-    <section id="overview">
-      <h2>Project Overview</h2>
-      <p>
-        This project develops a smart fan system with fuzzy logic control for comfort-driven cooling.<br>
-        It dynamically regulates fan speed using temperature, humidity, and user urgency inputs.
-      </p>
-    </section>
-
-    <!-- Interactive Fuzzy Logic Demo -->
-    <section id="flc-demo">
-      <h2>Fuzzy Logic Controller Demo</h2>
-      <div>
-        <label>Temperature (°C): <input type="range" min="20" max="35" step="1" id="tempSlider"></label>
-        <span id="tempValue"></span>
-        <br>
-        <label>Humidity (%): <input type="range" min="20" max="80" step="1" id="humSlider"></label>
-        <span id="humValue"></span>
-        <br>
-        <label>Urgency:
-          <select id="ttcSelect">
-            <option value="0.25">Slow</option>
-            <option value="0.5">Moderate</option>
-            <option value="0.75">Fast</option>
-            <option value="1">Immediate</option>
-          </select>
-        </label>
-        <br>
-        <button onclick="calculateFanSpeed()">Calculate Fan Speed</button>
-        <div id="fanSpeedResult"></div>
-      </div>
-      <script>
-        document.getElementById('tempSlider').oninput = function() {
-          document.getElementById('tempValue').textContent = this.value + '°C';
-        };
-        document.getElementById('humSlider').oninput = function() {
-          document.getElementById('humValue').textContent = this.value + '%';
-        };
-        // Set initial values for display
-        document.getElementById('tempSlider').value = 25;
-        document.getElementById('humSlider').value = 50;
-        document.getElementById('tempValue').textContent = "25°C";
-        document.getElementById('humValue').textContent = "50%";
-        function calculateFanSpeed() {
-          let temp = parseInt(document.getElementById('tempSlider').value);
-          let hum = parseInt(document.getElementById('humSlider').value);
-          let ttc = parseFloat(document.getElementById('ttcSelect').value);
-          // Simple (dummy) fuzzy logic: higher temp & lower humidity & higher urgency => faster fan
-          let error = temp - 25;
-          let humidityFactor = hum < 40 ? 1 : hum < 60 ? 0.7 : 0.5;
-          let baseSpeed = Math.min(Math.max(error * 12 * humidityFactor * ttc, 0), 100);
-          document.getElementById('fanSpeedResult').textContent = `Estimated Fan Speed: ${Math.round(baseSpeed)}% (via fuzzy logic)`;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Convective Regulator | Complete Implementation Guide</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load MathJax for LaTeX rendering -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <style>
+        /* Custom styles for a dark, professional theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* Dark background */
+            color: #c9d1d9; /* Light text */
         }
-      </script>
-    </section>
+        .section-card {
+            background-color: #161b22; /* Slightly lighter dark card */
+            border: 1px solid #30363d;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #238636;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #2ea043;
+        }
+        .timeline-dot {
+            background-color: #30363d;
+            border: 2px solid #58a6ff;
+        }
+        .ref-link:hover {
+            color: #58a6ff;
+            text-decoration: underline;
+        }
+        /* Style for LaTeX equations */
+        .math {
+            overflow-x: auto;
+            padding: 8px 0;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#58a6ff',
+                        'secondary': '#2ea043',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="p-4 sm:p-8">
 
-    <!-- Components Table -->
-    <section id="implementation">
-      <h2>Component List & Budget</h2>
-      <table border="1">
-        <tr><th>Component</th><th>Specs</th><th>Qty</th><th>Price (₹)</th></tr>
-        <tr><td>BME280 Sensor</td><td>I2C, temp & humidity</td><td>1</td><td>275</td></tr>
-        <tr><td>ESP32 Board</td><td>Wi-Fi, PWM support</td><td>1</td><td>400</td></tr>
-        <!-- More rows... -->
-      </table>
-    </section>
+    <div class="max-w-4xl mx-auto space-y-10">
 
-    <!-- Timeline -->
-    <section id="timeline">
-      <h2>Execution Timeline</h2>
-      <ol>
-        <li>Research & Procurement</li>
-        <li>Subsystem Assembly</li>
-        <li>Controller Development</li>
-        <li>Integration & Testing</li>
-        <li>Optimization</li>
-        <li>Documentation</li>
-        <li>Demonstration</li>
-      </ol>
-    </section>
+        <!-- HEADER & LINKEDIN -->
+        <header class="text-center py-8 section-card rounded-xl">
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-white mb-2 tracking-tight">
+                Intelligent Convective Regulator
+            </h1>
+            <p class="text-xl sm:text-2xl text-primary font-medium mb-6">
+                Complete Implementation Guide: Fuzzy Logic Smart Fan Project
+            </p>
 
-    <!-- Results (Graph) -->
-    <section id="results">
-      <h2>Testing & Validation Results</h2>
-      <canvas id="resultsChart" width="400" height="200"></canvas>
-      <script>
-        const ctx = document.getElementById('resultsChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: ['0','2','4','6','8','10'],
-            datasets: [{
-              label: 'Temperature (°C)',
-              data: [30,28,27,26,25.5,25],
-              borderColor: 'orange'
-            },
-            {
-              label: 'Fan Speed (%)',
-              data: [0,30,60,80,70,50],
-              borderColor: 'blue'
-            }]
-          }
-        });
-      </script>
-    </section>
+            <a href="https://www.linkedin.com/in/tanmaygr27" target="_blank"
+               class="inline-flex items-center text-sm font-semibold px-4 py-2 rounded-full border border-[#0A66C2] bg-[#0A66C2] text-white hover:bg-[#0c70d4] transition duration-200">
+                <!-- LinkedIn Icon (Inline SVG) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="mr-2">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.519-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+                Connect on LinkedIn (Tanmay)
+            </a>
+        </header>
 
-    <!-- Enhancements -->
-    <section id="enhancements">
-      <h2>Future Enhancements</h2>
-      <details>
-        <summary>Wireless Monitoring</summary>
-        <p>Remote UI via WiFi, mobile app connection, cloud data logging.</p>
-      </details>
-      <details>
-        <summary>Machine Learning Integration</summary>
-        <p>Adaptive fuzzy logic for improved comfort optimization.</p>
-      </details>
-    </section>
+        <!-- 1. PROJECT OVERVIEW AND OBJECTIVES -->
+        <section class="section-card p-6 rounded-xl">
+            <h2 class="text-2xl font-bold mb-4 text-primary border-b border-[#30363d] pb-2">1. Project Overview and Objectives</h2>
+            <p class="text-base leading-relaxed mb-4">
+                The objective is to develop an **Intelligent Convective Regulator (ICR)** that adjusts fan speed dynamically using a **Fuzzy Logic Controller (FLC)** on an **ESP32** board. The system considers real-time temperature, humidity, and user urgency (Time-to-Cool, TTC\_set) to maximize thermal comfort, moving beyond simple ON/OFF temperature control.
+            </p>
+            <h3 class="text-xl font-semibold mt-4 text-white">Key Design Principles:</h3>
+            <ul class="list-disc list-inside space-y-1 text-sm pl-4 mt-2">
+                <li>**Comfort-centric:** Adjusts for perceived comfort by considering humidity and temperature (evaporative cooling effect).</li>
+                <li>**Fuzzy Logic Control:** Handles non-linear, multi-variable inputs through intuitive linguistic rules.</li>
+                <li>**Safety & Efficiency:** Incorporates high-temp alarms, electrical protection (diodes), and fan stall detection (optional tachometer).</li>
+            </ul>
+        </section>
 
-    <!-- Author Section -->
-    <section id="author">
-      <h2>About the Author</h2>
-      <p>
-        Developed by <strong>Tanmay G R</strong>.<br>
-        Connect with me on 
-        <a href="https://www.Linkedin.com/in/tanmaygr27" target="_blank">LinkedIn</a>
-      </p>
-    </section>
+        <!-- 2. BUDGET & COMPONENTS (Combined Section) -->
+        <section class="section-card p-6 rounded-xl">
+            <h2 class="text-2xl font-bold mb-4 text-primary border-b border-[#30363d] pb-2">2. Budget & Component Analysis</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-700 text-sm">
+                    <thead class="bg-gray-800">
+                        <tr>
+                            <th class="px-3 py-2 text-left font-medium text-white tracking-wider">Component</th>
+                            <th class="px-3 py-2 text-left font-medium text-white tracking-wider">Qty</th>
+                            <th class="px-3 py-2 text-right font-medium text-white tracking-wider">Total (₹)</th>
+                            <th class="px-3 py-2 text-left font-medium text-white tracking-wider">Key Specs</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-800">
+                        <tr><td class="px-3 py-2 whitespace-nowrap">BME280 Sensor</td><td>1</td><td class="px-3 py-2 text-right">275</td><td>Temp/Humidity/I2C</td></tr>
+                        <tr><td class="px-3 py-2 whitespace-nowrap">ESP32 Dev Board</td><td>1</td><td class="px-3 py-2 text-right">400</td><td>Dual-core/WiFi/BLE</td></tr>
+                        <tr><td class="px-3 py-2 whitespace-nowrap">OLED 128×64 Display</td><td>1</td><td class="px-3 py-2 text-right">300</td><td>SSD1306/I2C</td></tr>
+                        <tr><td class="px-3 py-2 whitespace-nowrap">Rotary Encoder (KY-040)</td><td>1</td><td class="px-3 py-2 text-right">50</td><td>Menu/PushBtn</td></tr>
+                        <tr><td class="px-3 py-2 whitespace-nowrap">12V DC Fan</td><td>1</td><td class="px-3 py-2 text-right">100</td><td>50×50mm/PWM</td></tr>
+                        <tr><td class="px-3 py-2 whitespace-nowrap">IRF540N MOSFET</td><td>2</td><td class="px-3 py-2 text-right">20</td><td>PWM Switching</td></tr>
+                        <tr><td class="px-3 py-2 whitespace-nowrap">1N4007 Diode</td><td>10</td><td class="px-3 py-2 text-right">10</td><td>Flyback Protection</td></tr>
+                        <tr><td class="px-3 py-2 whitespace-nowrap">12V 2A Adapter</td><td>1</td><td class="px-3 py-2 text-right">150</td><td>Power Supply</td></tr>
+                        <tr><td class="px-3 py-2 whitespace-nowrap text-white font-bold">Project Subtotal</td><td></td><td class="px-3 py-2 text-right text-yellow-400 font-bold">1700</td><td></td></tr>
+                        <tr><td class="px-3 py-2 whitespace-nowrap text-white font-bold">Contingency (15%)</td><td></td><td class="px-3 py-2 text-right text-yellow-400 font-bold">255</td><td></td></tr>
+                        <tr><td class="px-3 py-2 whitespace-nowrap text-white font-bold">TOTAL PROJECT COST</td><td></td><td class="px-3 py-2 text-right text-secondary font-bold">1955</td><td></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-xs mt-3 text-gray-400">The total budget is **₹1,955**, designed to be accessible for student budgets while ensuring high-quality control (Fuzzy Logic) via the ESP32.</p>
+        </section>
 
-    <!-- Conclusion & Downloads -->
-    <section id="download">
-      <h2>Conclusion & Learning Outcomes</h2>
-      <p>
-        Students learn fuzzy logic control, embedded system integration, and project planning.<br>
-        <strong>Download:</strong>
-        <a href="PhyMiniProject.pdf">Project Report (PDF)</a> |
-        <a href="smart_fan_project_budget.csv">Budget CSV</a> |
-        <a href="smart_fan_circuit_connections.csv">Circuit CSV</a>
-      </p>
-    </section>
-  </main>
+        <!-- 3. STEPWISE EXECUTION PLAN (Timeline) -->
+        <section class="section-card p-6 rounded-xl">
+            <h2 class="text-2xl font-bold mb-4 text-primary border-b border-[#30363d] pb-2">3. Stepwise Execution Plan (41 Days)</h2>
+            <div class="space-y-4 relative pl-4">
+                <!-- Timeline Marker Line -->
+                <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-600"></div>
 
-  <footer>
-    &copy; 2025 Intelligent Convective Regulator Project Team. Author: 
-    <a href="https://www.Linkedin.com/in/tanmaygr27" target="_blank">Tanmay G R</a>
-  </footer>
+                <div class="relative">
+                    <div class="timeline-dot absolute -left-4 top-1 h-3 w-3 rounded-full"></div>
+                    <p class="font-semibold text-white">Phase 1: Research & Design (5 Days)</p>
+                    <p class="text-xs text-gray-400">Theory review (FLC, convection), system block diagram, procurement.</p>
+                </div>
+                <div class="relative">
+                    <div class="timeline-dot absolute -left-4 top-1 h-3 w-3 rounded-full"></div>
+                    <p class="font-semibold text-white">Phase 2: Subsystem Implementation (7 Days)</p>
+                    <p class="text-xs text-gray-400">BME280, OLED/Encoder HMI, MOSFET Fan Control assembly and test.</p>
+                </div>
+                <div class="relative">
+                    <div class="timeline-dot absolute -left-4 top-1 h-3 w-3 rounded-full"></div>
+                    <p class="font-semibold text-white">Phase 3: Fuzzy Logic Controller Programming (10 Days)</p>
+                    <p class="text-xs text-gray-400">Define MFs, build rule matrix, integrate FLC code modules.</p>
+                </div>
+                <div class="relative">
+                    <div class="timeline-dot absolute -left-4 top-1 h-3 w-3 rounded-full"></div>
+                    <p class="font-semibold text-white">Phase 4: Integration and Testing (4 Days)</p>
+                    <p class="text-xs text-gray-400">Connect and synchronize all hardware/software for validation.</p>
+                </div>
+                <div class="relative">
+                    <div class="timeline-dot absolute -left-4 top-1 h-3 w-3 rounded-full"></div>
+                    <p class="font-semibold text-white">Phase 5: Optimization & Safety Tuning (6 Days)</p>
+                    <p class="text-xs text-gray-400">Benchmark settling time, tune FLC parameters, test high-temp alarms.</p>
+                </div>
+                <div class="relative">
+                    <div class="timeline-dot absolute -left-4 top-1 h-3 w-3 rounded-full"></div>
+                    <p class="font-semibold text-white">Phase 6: Documentation & Presentation (7 Days)</p>
+                    <p class="text-xs text-gray-400">Final wiring diagrams, commented code, technical report.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. CIRCUIT CONNECTIONS (Collapsible Detailed Section) -->
+        <section class="section-card p-6 rounded-xl">
+            <button onclick="toggleSection('circuit')" class="flex justify-between items-center w-full text-lg font-semibold py-2 px-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition duration-150">
+                4. Circuit Connections and Structural Implementation
+                <span id="circuit-icon" class="text-primary">▼</span>
+            </button>
+            <div id="circuit-content" class="mt-3 space-y-3 text-sm hidden p-3 border border-[#30363d] rounded-md">
+                <h3 class="font-bold text-white">I2C Shared Bus (BME280 + OLED):</h3>
+                <ul class="list-disc list-inside ml-4 space-y-1">
+                    <li>ESP32 GPIO22 (SCL) ↔ BME280 SCL ↔ OLED SCL</li>
+                    <li>ESP32 GPIO21 (SDA) ↔ BME280 SDA ↔ OLED SDA</li>
+                    <li>*Note: 4.7kΩ pull-up resistors to 3.3V are required.*</li>
+                </ul>
+
+                <h3 class="font-bold text-white mt-4">PWM Fan Control (MOSFET & Diode):</h3>
+                <ul class="list-disc list-inside ml-4 space-y-1">
+                    <li>**Gate Control:** ESP32 GPIO9 → 1kΩ Resistor → MOSFET Gate</li>
+                    <li>**Switching:** MOSFET Source → Ground | Drain → Fan Negative</li>
+                    <li>**Power:** Fan Positive → 12V DC Supply</li>
+                    <li>**Protection:** 1N4007 Diode (Anode = Drain, Cathode = 12V) for Flyback.</li>
+                </ul>
+
+                <h3 class="font-bold text-white mt-4">Structural Notes:</h3>
+                <p>Use a star-ground common point. Ensure **0.1µF decoupling** per IC and **100µF** at the 12V line. Keep the BME280 sensor thermally isolated from the ESP32 and fan motor heat.</p>
+            </div>
+        </section>
+
+        <!-- 5. FUZZY LOGIC CONTROLLER DESIGN (Collapsible Detailed Section) -->
+        <section class="section-card p-6 rounded-xl">
+            <button onclick="toggleSection('flc')" class="flex justify-between items-center w-full text-lg font-semibold py-2 px-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition duration-150">
+                5. Fuzzy Logic Controller (FLC) Design Details
+                <span id="flc-icon" class="text-primary">▼</span>
+            </button>
+            <div id="flc-content" class="mt-3 space-y-3 text-sm hidden p-3 border border-[#30363d] rounded-md">
+                <h3 class="font-bold text-white">Input Variables:</h3>
+                <ul class="list-disc list-inside ml-4 space-y-1">
+                    <li>**Temperature Error ($E_{temp}$):** Negative, Zero, Positive</li>
+                    <li>**Rate of Change ($dE/dt$):** Decreasing, Stable, Increasing</li>
+                    <li>**Humidity:** Dry, Normal, Humid</li>
+                    <li>**TTC (Urgency):** Immediate, Fast, Moderate, Slow</li>
+                </ul>
+
+                <h3 class="font-bold text-white mt-4">Membership Functions (MFs):</h3>
+                <div class="math">
+                    <p class="font-medium text-white">Triangular MF $(a, b, c)$:</p>
+                    $$
+                    \mu(x)= \begin{cases} 0 & x \le a \\ \frac{x-a}{b-a} & a < x \le b \\ \frac{c-x}{c-b} & b < x \le c \\ 0 & x > c \end{cases}
+                    $$
+                    <p class="font-medium text-white mt-3">Trapezoidal MF $(a, b, c, d)$:</p>
+                    $$
+                    \mu(x)= \begin{cases} 0 & x \le a \\ \frac{x-a}{b-a} & a < x \le b \\ 1 & b < x \le c \\ \frac{d-x}{d-c} & c < x \le d \\ 0 & x > d \end{cases}
+                    $$
+                </div>
+
+                <h3 class="font-bold text-white mt-4">Defuzzification (Center of Gravity):</h3>
+                <div class="math">
+                    $$
+                    PWM_{out} = \frac{\sum \mu_{output}(x_i) \cdot x_i}{\sum \mu_{output}(x_i)}
+                    $$
+                </div>
+                <p class="italic text-gray-400 mt-2">Output Variable: Fan Speed (Off/Low/Medium/High/Max, 0–100%)</p>
+                <p class="mt-4 font-bold text-white">Rule Example:</p>
+                <code class="block bg-gray-900 p-2 rounded text-xs">
+                    IF Error is Positive AND dE/dt is Increasing AND Humidity is Dry AND TTC is Immediate THEN Fan is Maximum
+                </code>
+            </div>
+        </section>
+
+        <!-- 6. TESTING AND VALIDATION PROTOCOLS -->
+        <section class="section-card p-6 rounded-xl">
+            <h2 class="text-2xl font-bold mb-4 text-primary border-b border-[#30363d] pb-2">6. Testing and Validation Protocols</h2>
+            <h3 class="text-xl font-semibold mt-4 text-white">Performance Tests:</h3>
+            <ul class="list-disc list-inside space-y-1 text-sm pl-4 mt-2">
+                <li>**Step Response:** Log time to reach within $1^\circ C$ of target (e.g., from $30^\circ C$ to $25^\circ C$).</li>
+                <li>**Humidity Adaptation:** Compare fan output at 30% vs. 70% Relative Humidity.</li>
+                <li>**TTC Sensitivity:** Validate fan speed variation across all urgency settings.</li>
+            </ul>
+            <h3 class="text-xl font-semibold mt-4 text-white">Safety Tests:</h3>
+            <ul class="list-disc list-inside space-y-1 text-sm pl-4 mt-2">
+                <li>High-temp alarm activation (Buzzer) at $>40^\circ C$.</li>
+                <li>Communication failure fallback (Fan set to 50% speed).</li>
+                <li>Insulation resistance check ($>1 M\Omega$).</li>
+            </ul>
+        </section>
+        
+        <!-- 7. BUDGET OPTIMIZATION (Section 7 from guide) -->
+        <section class="section-card p-6 rounded-xl">
+            <h2 class="text-2xl font-bold mb-4 text-primary border-b border-[#30363d] pb-2">7. Budget Optimization and Cost Analysis</h2>
+            <p class="text-base leading-relaxed mb-3">
+                The total cost of ₹1,955 is highly competitive. Key cost breakdowns show **Sensing & MCU** (35%) and **UI** (18%) are the largest categories, reflecting the intelligence added to the system.
+            </p>
+            <h3 class="text-xl font-semibold mt-4 text-white">Cost Comparison:</h3>
+            <ul class="list-disc list-inside space-y-1 text-sm pl-4 mt-2">
+                <li>Mechanical thermostat: $\approx$ ₹300 (no intelligence)</li>
+                <li>PID + Sensor System: $\approx$ ₹1,200–₹1,500 (less humidity awareness)</li>
+                <li>Commercial Smart Fan: $\approx$ ₹3,000–₹5,000 (no educational benefit)</li>
+            </ul>
+            <p class="text-sm mt-3 text-gray-400">**Optimization Note:** For production (100+ units), component costs are estimated to drop significantly, achieving a unit price of $\approx$ ₹800–₹1,000.</p>
+        </section>
+
+        <!-- 8. ADVANCED ENHANCEMENTS AND FUTURE WORK -->
+        <section class="section-card p-6 rounded-xl">
+            <h2 class="text-2xl font-bold mb-4 text-primary border-b border-[#30363d] pb-2">8. Advanced Enhancements and Future Work</h2>
+            <ul class="list-disc list-inside space-y-1 text-sm pl-4 mt-2">
+                <li>**Wireless Control:** Implement ESP32 web server or MQTT for app-based adjustments.</li>
+                <li>**Machine Learning:** Develop adaptive fuzzy logic or neural networks for predictive comfort optimization.</li>
+                <li>**Multi-Zone:** Integrate multi-sensor and multi-fan coordination for larger areas.</li>
+                <li>**Energy Efficiency:** Add INA219 power sensing and PIR sensors for occupancy detection.</li>
+                <li>**UI Upgrades:** Introduce voice control, touchscreen, or gesture control interfaces.</li>
+            </ul>
+        </section>
+
+        <!-- 9. CONCLUSION AND LEARNING OUTCOMES -->
+        <section class="section-card p-6 rounded-xl">
+            <h2 class="text-2xl font-bold mb-4 text-primary border-b border-[#30363d] pb-2">9. Conclusion and Learning Outcomes</h2>
+            <p class="text-base leading-relaxed mb-4">
+                The ICR project successfully integrates thermal physics, electronics, and **intelligent control**, providing a tangible demonstration of how advanced theory (Fuzzy Logic) can be applied practically. It fosters essential skills in embedded systems, hardware–software integration, iterative optimization, and technical documentation—key areas for careers in IoT and automation.
+            </p>
+            <h3 class="text-xl font-semibold mt-4 text-white">Learning Outcomes Summary:</h3>
+            <ul class="list-none space-y-3">
+                <li class="flex items-start">
+                    <span class="text-secondary text-xl mr-3 mt-1">✓</span>
+                    <span class="font-semibold text-white">Applied Fuzzy Logic:</span> Real-world application in a control system.
+                </li>
+                <li class="flex items-start">
+                    <span class="text-secondary text-xl mr-3 mt-1">✓</span>
+                    <span class="font-semibold text-white">Embedded Systems Mastery:</span> ESP32 development, sensor interfacing, and PWM control.
+                </li>
+                <li class="flex items-start">
+                    <span class="text-secondary text-xl mr-3 mt-1">✓</span>
+                    <span class="font-semibold text-white">Hardware-Software Co-design:</span> Practical integration and problem-solving.
+                </li>
+            </ul>
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer class="text-center text-xs text-gray-500 py-4">
+            Project Documentation for Intelligent Convective Regulator | Developed by Tanmay G.
+        </footer>
+
+    </div>
+
+    <script>
+        // JavaScript for handling collapsible sections
+        function toggleSection(id) {
+            const content = document.getElementById(id + '-content');
+            const icon = document.getElementById(id + '-icon');
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.textContent = '▲'; // Change icon to up arrow
+            } else {
+                content.classList.add('hidden');
+                icon.textContent = '▼'; // Change icon to down arrow
+            }
+        }
+    </script>
 </body>
 </html>
