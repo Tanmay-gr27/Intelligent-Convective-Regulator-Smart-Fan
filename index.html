@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Intelligent Convective Regulator - Smart Fan Physics Project</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Intelligent Convective Regulator</h1>
+    <nav>
+      <a href="#overview">Overview</a>
+      <a href="#implementation">Implementation</a>
+      <a href="#results">Results</a>
+      <a href="#enhancements">Future Work</a>
+      <a href="#author">Author</a>
+      <a href="#download">Downloads</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Overview -->
+    <section id="overview">
+      <h2>Project Overview</h2>
+      <p>
+        This project develops a smart fan system with fuzzy logic control for comfort-driven cooling.<br>
+        It dynamically regulates fan speed using temperature, humidity, and user urgency inputs.
+      </p>
+    </section>
+
+    <!-- Interactive Fuzzy Logic Demo -->
+    <section id="flc-demo">
+      <h2>Fuzzy Logic Controller Demo</h2>
+      <div>
+        <label>Temperature (°C): <input type="range" min="20" max="35" step="1" id="tempSlider"></label>
+        <span id="tempValue"></span>
+        <br>
+        <label>Humidity (%): <input type="range" min="20" max="80" step="1" id="humSlider"></label>
+        <span id="humValue"></span>
+        <br>
+        <label>Urgency:
+          <select id="ttcSelect">
+            <option value="0.25">Slow</option>
+            <option value="0.5">Moderate</option>
+            <option value="0.75">Fast</option>
+            <option value="1">Immediate</option>
+          </select>
+        </label>
+        <br>
+        <button onclick="calculateFanSpeed()">Calculate Fan Speed</button>
+        <div id="fanSpeedResult"></div>
+      </div>
+      <script>
+        document.getElementById('tempSlider').oninput = function() {
+          document.getElementById('tempValue').textContent = this.value + '°C';
+        };
+        document.getElementById('humSlider').oninput = function() {
+          document.getElementById('humValue').textContent = this.value + '%';
+        };
+        // Set initial values for display
+        document.getElementById('tempSlider').value = 25;
+        document.getElementById('humSlider').value = 50;
+        document.getElementById('tempValue').textContent = "25°C";
+        document.getElementById('humValue').textContent = "50%";
+        function calculateFanSpeed() {
+          let temp = parseInt(document.getElementById('tempSlider').value);
+          let hum = parseInt(document.getElementById('humSlider').value);
+          let ttc = parseFloat(document.getElementById('ttcSelect').value);
+          // Simple (dummy) fuzzy logic: higher temp & lower humidity & higher urgency => faster fan
+          let error = temp - 25;
+          let humidityFactor = hum < 40 ? 1 : hum < 60 ? 0.7 : 0.5;
+          let baseSpeed = Math.min(Math.max(error * 12 * humidityFactor * ttc, 0), 100);
+          document.getElementById('fanSpeedResult').textContent = `Estimated Fan Speed: ${Math.round(baseSpeed)}% (via fuzzy logic)`;
+        }
+      </script>
+    </section>
+
+    <!-- Components Table -->
+    <section id="implementation">
+      <h2>Component List & Budget</h2>
+      <table border="1">
+        <tr><th>Component</th><th>Specs</th><th>Qty</th><th>Price (₹)</th></tr>
+        <tr><td>BME280 Sensor</td><td>I2C, temp & humidity</td><td>1</td><td>275</td></tr>
+        <tr><td>ESP32 Board</td><td>Wi-Fi, PWM support</td><td>1</td><td>400</td></tr>
+        <!-- More rows... -->
+      </table>
+    </section>
+
+    <!-- Timeline -->
+    <section id="timeline">
+      <h2>Execution Timeline</h2>
+      <ol>
+        <li>Research & Procurement</li>
+        <li>Subsystem Assembly</li>
+        <li>Controller Development</li>
+        <li>Integration & Testing</li>
+        <li>Optimization</li>
+        <li>Documentation</li>
+        <li>Demonstration</li>
+      </ol>
+    </section>
+
+    <!-- Results (Graph) -->
+    <section id="results">
+      <h2>Testing & Validation Results</h2>
+      <canvas id="resultsChart" width="400" height="200"></canvas>
+      <script>
+        const ctx = document.getElementById('resultsChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['0','2','4','6','8','10'],
+            datasets: [{
+              label: 'Temperature (°C)',
+              data: [30,28,27,26,25.5,25],
+              borderColor: 'orange'
+            },
+            {
+              label: 'Fan Speed (%)',
+              data: [0,30,60,80,70,50],
+              borderColor: 'blue'
+            }]
+          }
+        });
+      </script>
+    </section>
+
+    <!-- Enhancements -->
+    <section id="enhancements">
+      <h2>Future Enhancements</h2>
+      <details>
+        <summary>Wireless Monitoring</summary>
+        <p>Remote UI via WiFi, mobile app connection, cloud data logging.</p>
+      </details>
+      <details>
+        <summary>Machine Learning Integration</summary>
+        <p>Adaptive fuzzy logic for improved comfort optimization.</p>
+      </details>
+    </section>
+
+    <!-- Author Section -->
+    <section id="author">
+      <h2>About the Author</h2>
+      <p>
+        Developed by <strong>Tanmay G R</strong>.<br>
+        Connect with me on 
+        <a href="https://www.Linkedin.com/in/tanmaygr27" target="_blank">LinkedIn</a>
+      </p>
+    </section>
+
+    <!-- Conclusion & Downloads -->
+    <section id="download">
+      <h2>Conclusion & Learning Outcomes</h2>
+      <p>
+        Students learn fuzzy logic control, embedded system integration, and project planning.<br>
+        <strong>Download:</strong>
+        <a href="PhyMiniProject.pdf">Project Report (PDF)</a> |
+        <a href="smart_fan_project_budget.csv">Budget CSV</a> |
+        <a href="smart_fan_circuit_connections.csv">Circuit CSV</a>
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2025 Intelligent Convective Regulator Project Team. Author: 
+    <a href="https://www.Linkedin.com/in/tanmaygr27" target="_blank">Tanmay G R</a>
+  </footer>
+</body>
+</html>
