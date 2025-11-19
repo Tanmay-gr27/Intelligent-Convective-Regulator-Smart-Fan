@@ -1,6 +1,6 @@
 Intelligent Convective Regulator: Smart Fan Physics Project
 
-As part of my physics capstone, I led the end-to-end design and implementation of an intelligent smart fan system driven by fuzzy logic. This project dynamically regulates fan speed to ensure optimal thermal comfort, integrating temperature, humidity, and user urgency inputs via a real-time microcontroller (ESP32) platform.
+As part of my physics capstone, I led the end-to-end design and implementation of an intelligent smart fan system driven by fuzzy logic. This project dynamically regulates fan speed to ensure optimal thermal comfort, integrating temperature, humidity, and user urgency inputs via a real-time microcontroller (Arduino UNO-V1888) platform.
 
 Key Features:
 
